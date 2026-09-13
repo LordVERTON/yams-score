@@ -1,5 +1,5 @@
 import { createId, total } from './scoring'
-import type { GameArchive, GameState, PlayerStats, Scores, ThemeName } from './types'
+import type { GameArchive, GameState, PlayerStats, Scores } from './types'
 
 function cloneScores(scores: Scores): Scores {
   return { ...scores }
@@ -48,14 +48,14 @@ export function createNewGameWithPlayers(game: GameState, id: string = createId(
   }
 }
 
-export function startNewGame(game: GameState, archives: GameArchive[], theme: ThemeName, archivedAt: string, nextGameId?: string): { game: GameState; archives: GameArchive[]; theme: ThemeName; archived: boolean } {
+export function startNewGame(game: GameState, archives: GameArchive[], archivedAt: string, nextGameId?: string): { game: GameState; archives: GameArchive[]; archived: boolean } {
   const nextGame = () => createNewGameWithPlayers(game, nextGameId)
-  if (!gameHasPlayedScore(game)) return { game: nextGame(), archives, theme, archived: false }
+  if (!gameHasPlayedScore(game)) return { game: nextGame(), archives, archived: false }
 
   const sourceKey = getGameSourceKey(game)
   const alreadyArchived = archives.some((archive) => archive.sourceKey === sourceKey)
   const nextArchives = alreadyArchived ? archives : [createArchive(game, archivedAt), ...archives]
-  return { game: nextGame(), archives: nextArchives, theme, archived: !alreadyArchived }
+  return { game: nextGame(), archives: nextArchives, archived: !alreadyArchived }
 }
 
 export function getPlayerStats(archives: GameArchive[]): PlayerStats[] {

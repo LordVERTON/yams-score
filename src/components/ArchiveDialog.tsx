@@ -1,6 +1,6 @@
-import { X } from 'lucide-react'
 import { getPlayerStats } from '../game/history'
 import type { GameArchive } from '../game/types'
+import { BottomSheet } from './BottomSheet'
 
 interface ArchiveDialogProps {
   mode: 'history' | 'stats'
@@ -12,12 +12,9 @@ export function ArchiveDialog({ mode, archives, onClose }: ArchiveDialogProps) {
   const isHistory = mode === 'history'
   const stats = getPlayerStats(archives)
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section className="app-dialog archive-dialog" role="dialog" aria-modal="true" aria-labelledby="archive-title" onMouseDown={(event) => event.stopPropagation()}>
-        <header className="dialog-header"><div><p className="dialog-eyebrow">{isHistory ? 'Parties terminées' : 'Résultats cumulés'}</p><h2 id="archive-title">{isHistory ? 'Historique' : 'Statistiques'}</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Fermer"><X size={20} /></button></header>
+    <BottomSheet title={isHistory ? 'Historique' : 'Statistiques'} eyebrow={isHistory ? 'Parties terminées' : 'Résultats cumulés'} onClose={onClose} className="archive-dialog">
         {isHistory ? <HistoryList archives={archives} /> : <StatsList stats={stats} />}
-      </section>
-    </div>
+    </BottomSheet>
   )
 }
 

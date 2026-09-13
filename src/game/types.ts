@@ -17,7 +17,6 @@ export type ScoreValue = number | null
 export type Scores = Partial<Record<CategoryId, ScoreValue>>
 
 export type BonusStatus = 'neutral' | 'good' | 'warning' | 'danger' | 'earned' | 'missed'
-export type ThemeName = 'amber' | 'ocean' | 'plum'
 
 export interface Player {
   id: string
@@ -61,4 +60,6 @@ export interface CategoryDefinition {
   id: CategoryId
   label: string
   section: 'upper' | 'chance' | 'main'
+  description: string
+  scoreSummary: string
 }

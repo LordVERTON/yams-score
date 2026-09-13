@@ -1,29 +1,29 @@
 import type { CategoryDefinition, CategoryId, MainCategoryId, Scores, UpperCategoryId } from './types'
 
 export const upperCategories: readonly CategoryDefinition[] = [
-  { id: 'ones', label: 'As', section: 'upper' },
-  { id: 'twos', label: 'Deux', section: 'upper' },
-  { id: 'threes', label: 'Trois', section: 'upper' },
-  { id: 'fours', label: 'Quatre', section: 'upper' },
-  { id: 'fives', label: 'Cinq', section: 'upper' },
-  { id: 'sixes', label: 'Six', section: 'upper' }
+  { id: 'ones', label: 'As', section: 'upper', description: 'Somme des dés affichant 1.', scoreSummary: '1, 2, 3, 4 ou 5.' },
+  { id: 'twos', label: 'Deux', section: 'upper', description: 'Somme des dés affichant 2.', scoreSummary: '2, 4, 6, 8 ou 10.' },
+  { id: 'threes', label: 'Trois', section: 'upper', description: 'Somme des dés affichant 3.', scoreSummary: '3, 6, 9, 12 ou 15.' },
+  { id: 'fours', label: 'Quatre', section: 'upper', description: 'Somme des dés affichant 4.', scoreSummary: '4, 8, 12, 16 ou 20.' },
+  { id: 'fives', label: 'Cinq', section: 'upper', description: 'Somme des dés affichant 5.', scoreSummary: '5, 10, 15, 20 ou 25.' },
+  { id: 'sixes', label: 'Six', section: 'upper', description: 'Somme des dés affichant 6.', scoreSummary: '6, 12, 18, 24 ou 30.' }
 ]
 
 export const mainCategories: readonly CategoryDefinition[] = [
-  { id: 'pair', label: 'Paire', section: 'main' },
-  { id: 'twoPairs', label: 'Double paire', section: 'main' },
-  { id: 'threeKind', label: 'Brelan', section: 'main' },
-  { id: 'fourKind', label: 'Carré', section: 'main' },
-  { id: 'fullHouse', label: 'Full', section: 'main' },
-  { id: 'smallStraight', label: 'Petite suite', section: 'main' },
-  { id: 'largeStraight', label: 'Grande suite', section: 'main' },
-  { id: 'yams', label: 'Yams', section: 'main' },
-  { id: 'yamsBonus', label: 'Yams Bonus', section: 'main' }
+  { id: 'pair', label: 'Paire', section: 'main', description: 'Valeur des deux dés de la paire.', scoreSummary: '2, 4, 6, 8, 10 ou 12.' },
+  { id: 'twoPairs', label: 'Double paire', section: 'main', description: 'Deux paires de valeurs différentes.', scoreSummary: '6, 8, 10, 12, 14, 16, 18, 20 ou 22.' },
+  { id: 'threeKind', label: 'Brelan', section: 'main', description: 'Trois dés de même valeur.', scoreSummary: '20 points.' },
+  { id: 'fourKind', label: 'Carré', section: 'main', description: 'Quatre dés de même valeur.', scoreSummary: '30 points.' },
+  { id: 'fullHouse', label: 'Full', section: 'main', description: 'Un brelan et une paire.', scoreSummary: '25 points.' },
+  { id: 'smallStraight', label: 'Petite suite', section: 'main', description: 'Suite de quatre dés.', scoreSummary: '30 points.' },
+  { id: 'largeStraight', label: 'Grande suite', section: 'main', description: 'Suite de cinq dés.', scoreSummary: '40 points.' },
+  { id: 'yams', label: 'Yams', section: 'main', description: 'Cinq dés de même valeur.', scoreSummary: '50 points.' },
+  { id: 'yamsBonus', label: 'Yams Bonus', section: 'main', description: 'Chaque Yams supplémentaire après un Yams à 50.', scoreSummary: '100 points par Yams, cumulés.' }
 ]
 
 export const chanceCategories: readonly CategoryDefinition[] = [
-  { id: 'chancePlus', label: 'Chance +', section: 'chance' },
-  { id: 'chanceMinus', label: 'Chance -', section: 'chance' }
+  { id: 'chancePlus', label: 'Chance +', section: 'chance', description: 'Somme des cinq dés.', scoreSummary: '5 à 30, strictement supérieure à Chance -.' },
+  { id: 'chanceMinus', label: 'Chance -', section: 'chance', description: 'Somme des cinq dés.', scoreSummary: '5 à 30, strictement inférieure à Chance +.' }
 ]
 
 export const categoryById = Object.fromEntries([...upperCategories, ...chanceCategories, ...mainCategories].map((category) => [category.id, category])) as Record<CategoryId, CategoryDefinition>

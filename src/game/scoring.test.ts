@@ -77,6 +77,15 @@ describe('valeurs autorisées', () => {
     expect(validScores('yams', {})).toEqual([50])
   })
 
+  it('conserve les valeurs fixes de toutes les combinaisons', () => {
+    expect(validScores('threeKind', {})).toEqual([20])
+    expect(validScores('fourKind', {})).toEqual([30])
+    expect(validScores('fullHouse', {})).toEqual([25])
+    expect(validScores('smallStraight', {})).toEqual([30])
+    expect(validScores('largeStraight', {})).toEqual([40])
+    expect(validScores('yams', {})).toEqual([50])
+  })
+
   it('contraint Chance + au-dessus de Chance -', () => {
     expect(validScores('chancePlus', { chanceMinus: 16 })).toEqual([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30])
     expect(isValidScore('chancePlus', 16, { chanceMinus: 16 })).toBe(false)

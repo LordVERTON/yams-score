@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getPlayerStats, startNewGame } from './history'
-import type { GameArchive, GameState, ThemeName } from './types'
-
-const theme: ThemeName = 'ocean'
+import type { GameArchive, GameState } from './types'
 
 function game(scoresA: GameState['players'][number]['scores'] = {}, scoresB: GameState['players'][number]['scores'] = {}): GameState {
   return {
@@ -16,7 +14,7 @@ function game(scoresA: GameState['players'][number]['scores'] = {}, scoresB: Gam
 }
 
 function start(currentGame: GameState, archives: GameArchive[] = []) {
-  return startNewGame(currentGame, archives, theme, '2026-09-14T12:00:00.000Z', 'game-2')
+  return startNewGame(currentGame, archives, '2026-09-14T12:00:00.000Z', 'game-2')
 }
 
 describe('nouvelle partie et archivage', () => {
@@ -51,10 +49,6 @@ describe('nouvelle partie et archivage', () => {
     ])
   })
 
-  it('conserve le thème sélectionné', () => {
-    expect(start(game({ yams: 50 })).theme).toBe('ocean')
-  })
-
   it('enregistre les bons totaux dans l’historique', () => {
     const result = start(game({ yams: 50, pair: 12 }, { pair: 2 }))
     expect(result.archives[0].players.map((player) => ({ name: player.name, total: player.total }))).toEqual([
@@ -72,7 +66,7 @@ describe('nouvelle partie et archivage', () => {
   it('évite un doublon lors d’un double déclenchement', () => {
     const currentGame = game({ yams: 50 })
     const first = start(currentGame)
-    const second = startNewGame(currentGame, first.archives, theme, '2026-09-14T12:00:01.000Z', 'game-3')
+    const second = startNewGame(currentGame, first.archives, '2026-09-14T12:00:01.000Z', 'game-3')
     expect(second.archives).toHaveLength(1)
     expect(second.archived).toBe(false)
   })

@@ -1,9 +1,12 @@
 import { createGame, createId, createPlayer } from '../game/scoring'
-import type { GameArchive, GameState, Player, Scores, ThemeName } from '../game/types'
+import type { GameArchive, GameState, Player, Scores } from '../game/types'
+import { DEFAULT_BACKGROUND_THEME, DEFAULT_GRID_THEME, isBackgroundTheme, isGridTheme } from '../theme/themes'
+import type { AppearancePreferences } from '../theme/types'
 
 export const STORAGE_KEY = 'yams-score/game-v1'
 export const ARCHIVES_STORAGE_KEY = 'yams-score/archives-v1'
-export const THEME_STORAGE_KEY = 'yams-score/theme-v1'
+export const PREFERENCES_STORAGE_KEY = 'yams-score/preferences-v1'
+const LEGACY_THEME_STORAGE_KEY = 'yams-score/theme-v1'
 
 function safeScores(value: unknown): Scores {
   if (!value || typeof value !== 'object') return {}
@@ -59,13 +62,47 @@ export function saveArchives(archives: GameArchive[]): void {
   localStorage.setItem(ARCHIVES_STORAGE_KEY, JSON.stringify(archives))
 }
 
-export function loadTheme(): ThemeName {
-  const theme = localStorage.getItem(THEME_STORAGE_KEY)
-  return theme === 'ocean' || theme === 'plum' ? theme : 'amber'
+function defaultPreferences(): AppearancePreferences {
+  return { version: 1, backgroundTheme: DEFAULT_BACKGROUND_THEME, gridTheme: DEFAULT_GRID_THEME }
 }
 
-export function saveTheme(theme: ThemeName): void {
-  localStorage.setItem(THEME_STORAGE_KEY, theme)
+export function normalizePreferences(value: unknown, legacyTheme?: unknown): AppearancePreferences {
+  if (value && typeof value === 'object') {
+    const values = value as Partial<AppearancePreferences>
+    return {
+      version: 1,
+      backgroundTheme: isBackgroundTheme(values.backgroundTheme) ? values.backgroundTheme : DEFAULT_BACKGROUND_THEME,
+      gridTheme: isGridTheme(values.gridTheme) ? values.gridTheme : DEFAULT_GRID_THEME
+    }
+  }
+  const gridTheme = legacyTheme === 'ocean' ? 'ocean' : legacyTheme === 'plum' ? 'violet' : DEFAULT_GRID_THEME
+  return { ...defaultPreferences(), gridTheme }
+}
+
+export function loadPreferences(): AppearancePreferences {
+  try {
+    const raw = localStorage.getItem(PREFERENCES_STORAGE_KEY)
+    if (raw) {
+      const candidate: unknown = JSON.parse(raw)
+      if (candidate && typeof candidate === 'object') return normalizePreferences(candidate)
+    }
+    // Migration de l'ancien thème unique : sa couleur reste l'accent et le fond
+    // garde la direction sombre Forêt afin de ne pas surprendre les utilisateurs.
+    const legacy = localStorage.getItem(LEGACY_THEME_STORAGE_KEY)
+    const preferences = normalizePreferences(undefined, legacy)
+    if (legacy) savePreferences(preferences)
+    return preferences
+  } catch {
+    return defaultPreferences()
+  }
+}
+
+export function savePreferences(preferences: AppearancePreferences): void {
+  localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences))
+}
+
+export function clearArchives(): void {
+  localStorage.removeItem(ARCHIVES_STORAGE_KEY)
 }
 
 export function saveNewGameSession(game: GameState, archives: GameArchive[]): void {

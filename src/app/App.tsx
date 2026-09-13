@@ -5,20 +5,22 @@ import { NewGameDialog } from '../components/NewGameDialog'
 import { PlayersBar } from '../components/PlayersBar'
 import { ScoreModal } from '../components/ScoreModal'
 import { ScoreSheet } from '../components/ScoreSheet'
+import { SettingsSheet } from '../components/SettingsSheet'
 import { startNewGame } from '../game/history'
 import { clearScore, createPlayer, setScore } from '../game/scoring'
-import type { CategoryDefinition, CategoryId, GameState, Player, ThemeName } from '../game/types'
-import { loadArchives, loadGame, loadTheme, saveArchives, saveGame, saveNewGameSession, saveTheme } from './storage'
+import type { CategoryDefinition, CategoryId, GameState, Player } from '../game/types'
+import { applyAppearance } from '../theme/applyTheme'
+import { DEFAULT_BACKGROUND_THEME, DEFAULT_GRID_THEME } from '../theme/themes'
+import type { AppearancePreferences } from '../theme/types'
+import { clearArchives, loadArchives, loadGame, loadPreferences, saveArchives, saveGame, saveNewGameSession, savePreferences } from './storage'
 
 interface Selection { playerId: string; category: CategoryDefinition }
-type Dialog = 'newGame' | 'history' | 'stats' | null
-
-const themes: ThemeName[] = ['amber', 'ocean', 'plum']
+type Dialog = 'newGame' | 'history' | 'stats' | 'settings' | 'appearance' | null
 
 export default function App() {
   const [game, setGame] = useState<GameState>(loadGame)
   const [archives, setArchives] = useState(loadArchives)
-  const [theme, setTheme] = useState<ThemeName>(loadTheme)
+  const [appearance, setAppearance] = useState<AppearancePreferences>(loadPreferences)
   const [selection, setSelection] = useState<Selection | null>(null)
   const [dialog, setDialog] = useState<Dialog>(null)
   const [isStartingNewGame, setIsStartingNewGame] = useState(false)
@@ -27,10 +29,7 @@ export default function App() {
 
   useEffect(() => { saveGame(game) }, [game])
   useEffect(() => { saveArchives(archives) }, [archives])
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    saveTheme(theme)
-  }, [theme])
+  useEffect(() => { applyAppearance(appearance); savePreferences(appearance) }, [appearance])
   useEffect(() => {
     if (!toast) return undefined
     const timer = window.setTimeout(() => setToast(null), 1800)
@@ -42,14 +41,14 @@ export default function App() {
   const renamePlayer = (id: string, name: string) => updatePlayers((players) => players.map((player) => player.id === id ? { ...player, name: name.slice(0, 32) } : player))
   const deletePlayer = (id: string) => updatePlayers((players) => players.length > 1 ? players.filter((player) => player.id !== id) : players)
   const select = (player: Player, category: CategoryDefinition) => setSelection({ playerId: player.id, category })
-  const cycleTheme = () => setTheme((current) => themes[(themes.indexOf(current) + 1) % themes.length])
+  const resetAppearance = () => setAppearance({ version: 1, backgroundTheme: DEFAULT_BACKGROUND_THEME, gridTheme: DEFAULT_GRID_THEME })
 
   const confirmNewGame = () => {
     if (newGameGuard.current) return
     newGameGuard.current = true
     setIsStartingNewGame(true)
     try {
-      const result = startNewGame(game, archives, theme, new Date().toISOString())
+      const result = startNewGame(game, archives, new Date().toISOString())
       saveNewGameSession(result.game, result.archives)
       setArchives(result.archives)
       setGame(result.game)
@@ -78,10 +77,12 @@ export default function App() {
     setSelection(null)
   }
   const selectedPlayer = selection ? game.players.find((player) => player.id === selection.playerId) : undefined
+  const openHistoryFromSettings = () => setDialog('history')
+  const eraseHistory = () => { clearArchives(); setArchives([]); setDialog(null); setToast('Historique effacé') }
 
   return (
     <main className="app-shell">
-      <AppHeader onPalette={cycleTheme} onHistory={() => setDialog('history')} onStats={() => setDialog('stats')} onNewGame={() => setDialog('newGame')} />
+      <AppHeader onSettings={() => setDialog('settings')} onPalette={() => setDialog('appearance')} onHistory={() => setDialog('history')} onStats={() => setDialog('stats')} onNewGame={() => setDialog('newGame')} />
       <PlayersBar onAdd={addPlayer} />
       <ScoreSheet players={game.players} onSelect={select} onRename={renamePlayer} onDelete={deletePlayer} />
       <footer className="app-footer"><span>Les scores sont enregistrés automatiquement sur cet appareil.</span><span className="footer-dot">•</span><span>Appuyez sur une case pour jouer</span></footer>
@@ -89,6 +90,7 @@ export default function App() {
       {selection && selectedPlayer && <ScoreModal player={selectedPlayer} category={selection.category.id} label={selection.category.label} onClose={() => setSelection(null)} onSave={(value) => saveScore(selection.category.id, value)} onClear={clearSelectedScore} />}
       {dialog === 'newGame' && <NewGameDialog isSubmitting={isStartingNewGame} onCancel={() => setDialog(null)} onConfirm={confirmNewGame} />}
       {(dialog === 'history' || dialog === 'stats') && <ArchiveDialog mode={dialog} archives={archives} onClose={() => setDialog(null)} />}
+      {(dialog === 'settings' || dialog === 'appearance') && <SettingsSheet appearance={appearance} initialView={dialog === 'appearance' ? 'appearance' : 'home'} onAppearanceChange={setAppearance} onResetAppearance={resetAppearance} onOpenHistory={openHistoryFromSettings} onClearHistory={eraseHistory} onClose={() => setDialog(null)} />}
     </main>
   )
 }
