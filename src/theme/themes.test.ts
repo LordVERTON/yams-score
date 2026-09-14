@@ -10,6 +10,7 @@ describe('catalogue d’apparence', () => {
 
   it('accepte les thèmes connus et refuse les valeurs inconnues', () => {
     expect(isBackgroundTheme('marine')).toBe(true)
+    expect(isBackgroundTheme('ivory')).toBe(true)
     expect(isGridTheme('rose')).toBe(true)
     expect(isBackgroundTheme('rose')).toBe(false)
     expect(isGridTheme('inconnu')).toBe(false)

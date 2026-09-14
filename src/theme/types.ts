@@ -1,4 +1,4 @@
-export type BackgroundThemeId = 'night' | 'forest' | 'slate' | 'marine' | 'aubergine' | 'sepia'
+export type BackgroundThemeId = 'night' | 'forest' | 'slate' | 'marine' | 'aubergine' | 'sepia' | 'ivory' | 'mist' | 'sand'
 export type GridThemeId = 'forest' | 'emerald' | 'slate' | 'violet' | 'rose' | 'ocean' | 'ember' | 'gold' | 'coral'
 
 export interface AppearancePreferences {

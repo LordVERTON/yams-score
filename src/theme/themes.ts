@@ -10,7 +10,9 @@ export const DEFAULT_GRID_THEME: GridThemeId = 'gold'
 export const backgroundThemes: readonly ThemeOption<BackgroundThemeId>[] = [
   { id: 'night', label: 'Nuit', preview: '#101215' }, { id: 'forest', label: 'Forêt', preview: '#101917' },
   { id: 'slate', label: 'Ardoise', preview: '#171a20' }, { id: 'marine', label: 'Marine', preview: '#101721' },
-  { id: 'aubergine', label: 'Aubergine', preview: '#1a131e' }, { id: 'sepia', label: 'Sépia', preview: '#1c1711' }
+  { id: 'aubergine', label: 'Aubergine', preview: '#1a131e' }, { id: 'sepia', label: 'Sépia', preview: '#1c1711' },
+  { id: 'ivory', label: 'Ivoire', preview: '#f7f2e9' }, { id: 'mist', label: 'Brume', preview: '#eef3f5' },
+  { id: 'sand', label: 'Sable', preview: '#f5ead9' }
 ]
 
 export const gridThemes: readonly ThemeOption<GridThemeId>[] = [

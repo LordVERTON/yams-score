@@ -71,7 +71,7 @@ La migration d’apparence lit l’ancienne clé `yams-score/theme-v1` si néces
 
 ## Apparence et thèmes
 
-Les préférences sont indépendantes : un fond très sombre (Nuit, Forêt, Ardoise, Marine, Aubergine ou Sépia) et une couleur de grille (Forêt, Émeraude, Ardoise, Violet, Rose, Océan, Braise, Or ou Corail). Les variables CSS séparent surfaces et accents ; les couleurs sémantiques du bonus restent inchangées.
+Les préférences sont indépendantes : un fond sombre (Nuit, Forêt, Ardoise, Marine, Aubergine ou Sépia) ou clair (Ivoire, Brume ou Sable), et une couleur de grille (Forêt, Émeraude, Ardoise, Violet, Rose, Océan, Braise, Or ou Corail). Les variables CSS séparent surfaces et accents ; les couleurs sémantiques du bonus restent inchangées. Les chiffres de la ligne Total utilisent automatiquement une couleur contrastée : claire sur fond sombre, foncée sur fond clair.
 
 La palette du header ouvre le sélecteur rapide ; Paramètres > Apparence ouvre le même composant. Réinitialiser l’apparence ne touche ni la partie, ni les joueurs, ni l’historique.
 
