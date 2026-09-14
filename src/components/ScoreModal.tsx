@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useId, useState } from 'react'
 import { CircleX, PencilLine, Square, X } from 'lucide-react'
-import { validScores } from '../game/rules'
+import { categoryById, validScores } from '../game/rules'
 import type { CategoryId, Player } from '../game/types'
 
 interface ScoreModalProps {
@@ -8,7 +8,7 @@ interface ScoreModalProps {
   category: CategoryId
   label: string
   onClose: () => void
-  onSave: (value: number) => string | null
+  onSave: (value: number, isCustomScore?: boolean) => string | null
   onClear: () => void
 }
 
@@ -18,6 +18,8 @@ export function ScoreModal({ player, category, label, onClose, onSave, onClear }
   const [error, setError] = useState<string | null>(null)
   const titleId = useId()
   const options = validScores(category, player.scores)
+  const allowsRangedCustomScore = categoryById[category].section !== 'upper'
+  const customScoreHint = allowsRangedCustomScore ? 'Entrez un nombre entier de 5 à 30.' : 'Entrez un score entier valide pour cette catégorie.'
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -27,8 +29,8 @@ export function ScoreModal({ player, category, label, onClose, onSave, onClear }
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
 
-  const save = (value: number) => {
-    const saveError = onSave(value)
+  const save = (value: number, isCustomScore = false) => {
+    const saveError = onSave(value, isCustomScore)
     if (saveError) setError(saveError)
   }
 
@@ -43,7 +45,11 @@ export function ScoreModal({ player, category, label, onClose, onSave, onClear }
       setError('Utilisez 0 / Raturer pour inscrire zéro.')
       return
     }
-    save(value)
+    if (allowsRangedCustomScore && (value < 5 || value > 30)) {
+      setError('Le score personnalisé doit être compris entre 5 et 30.')
+      return
+    }
+    save(value, allowsRangedCustomScore)
   }
 
   return (
@@ -63,7 +69,8 @@ export function ScoreModal({ player, category, label, onClose, onSave, onClear }
         </div>
         {customMode && <form className="custom-score-form" onSubmit={submitCustom}>
           <label htmlFor="custom-score">Score personnalisé</label>
-          <div><input id="custom-score" autoFocus value={customValue} onChange={(event) => { setCustomValue(event.target.value); setError(null) }} type="number" inputMode="numeric" pattern="[0-9]*" min="0" step="1" /><button type="submit" className="confirm-button">Valider</button></div>
+          <div><input id="custom-score" autoFocus value={customValue} onChange={(event) => { setCustomValue(event.target.value); setError(null) }} type="number" inputMode="numeric" pattern="[0-9]*" min={allowsRangedCustomScore ? 5 : 1} max={allowsRangedCustomScore ? 30 : undefined} step="1" aria-describedby="custom-score-hint" aria-invalid={Boolean(error)} /><button type="submit" className="confirm-button">Valider</button></div>
+          <small id="custom-score-hint">{customScoreHint}</small>
         </form>}
         {error && <p className="modal-error" role="alert">{error}</p>}
         <p className="modal-help">Scores proposés</p>

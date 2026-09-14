@@ -7,6 +7,7 @@ import {
   getBonusIndicatorStatus,
   getBonusPaceDelta,
   getUpperSectionRemaining,
+  isCustomScoreInRange,
   isValidScore,
   setScore,
   total,
@@ -126,6 +127,16 @@ describe('saisie, rature et remise à vide', () => {
     expect(setScore(player, 'twoPairs', 24).scores.twoPairs).toBe(24)
     expect(() => setScore(player, 'pair', 3)).toThrow('Score invalide pour cette catégorie.')
     expect(() => setScore(player, 'twoPairs', 23)).toThrow('Score invalide pour cette catégorie.')
+  })
+
+  it('accepte les scores personnalisés de 5 à 30 en section II et principale', () => {
+    expect(isCustomScoreInRange('chancePlus', 5)).toBe(true)
+    expect(isCustomScoreInRange('fullHouse', 30)).toBe(true)
+    expect(isCustomScoreInRange('pair', 4)).toBe(false)
+    expect(isCustomScoreInRange('ones', 12)).toBe(false)
+    expect(setScore(player, 'fullHouse', 18, true).scores.fullHouse).toBe(18)
+    expect(setScore(player, 'chanceMinus', 9, true).scores.chanceMinus).toBe(9)
+    expect(() => setScore(player, 'pair', 4, true)).toThrow('Le score personnalisé doit être compris entre 5 et 30.')
   })
 
   it('calcule le total complet avec le Yams Bonus', () => {

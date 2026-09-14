@@ -61,6 +61,8 @@ Additionner As à Six. À partir de `63`, le bonus vaut `+35`, sinon `0`. La cib
 - Yams Bonus : après un Yams inscrit à 50, chaque Yams supplémentaire ajoute 100 points au cumul (`100, 200, …`).
 - Chance + et Chance - : somme des cinq dés, de `5` à `30`. Si les deux sont positives, Chance + doit être strictement supérieure à Chance -. Une Chance raturée (`0`) ne contraint pas l’autre.
 
+Pour les lignes des sections II et Principale, le bouton **Personnalisé** permet aussi de saisir un score entier de `5` à `30`. Les valeurs proposées continuent de suivre les règles propres à chaque combinaison.
+
 Une case raturée contient `0` : elle est jouée. Une case vide contient `null` : elle n’est pas jouée. Les totaux automatiques additionnent les valeurs jouées ; les cases vides contribuent temporairement à `0`.
 
 ## Persistance

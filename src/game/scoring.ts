@@ -75,15 +75,24 @@ export function isValidScore(category: CategoryId, value: number, scores: Scores
   return validScores(category, scores).includes(value)
 }
 
-export function scoreValidationMessage(category: CategoryId, value: number, scores: Scores): string | null {
+export function isCustomScoreInRange(category: CategoryId, value: number): boolean {
+  return (chanceCategories.some((candidate) => candidate.id === category) || mainCategories.some((candidate) => candidate.id === category))
+    && Number.isInteger(value)
+    && value >= 5
+    && value <= 30
+}
+
+export function scoreValidationMessage(category: CategoryId, value: number, scores: Scores, isCustomScore = false): string | null {
+  if (isCustomScore && isCustomScoreInRange(category, value)) return null
+  if (isCustomScore) return 'Le score personnalisé doit être compris entre 5 et 30.'
   if (isValidScore(category, value, scores)) return null
   if (category === 'chancePlus' && typeof scores.chanceMinus === 'number' && scores.chanceMinus > 0) return 'Chance + doit être strictement supérieure à Chance -.'
   if (category === 'chanceMinus' && typeof scores.chancePlus === 'number' && scores.chancePlus > 0) return 'Chance - doit être strictement inférieure à Chance +.'
   return 'Score invalide pour cette catégorie.'
 }
 
-export function setScore(player: Player, category: CategoryId, value: number): Player {
-  const error = value === 0 ? null : scoreValidationMessage(category, value, player.scores)
+export function setScore(player: Player, category: CategoryId, value: number, isCustomScore = false): Player {
+  const error = value === 0 ? null : scoreValidationMessage(category, value, player.scores, isCustomScore)
   if (error) throw new Error(error)
   return { ...player, scores: { ...player.scores, [category]: value } }
 }

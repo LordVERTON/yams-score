@@ -61,10 +61,10 @@ export default function App() {
     }
   }
 
-  const saveScore = (category: CategoryId, value: number): string | null => {
+  const saveScore = (category: CategoryId, value: number, isCustomScore = false): string | null => {
     if (!selection) return null
     try {
-      updatePlayers((players) => players.map((player) => player.id === selection.playerId ? setScore(player, category, value) : player))
+      updatePlayers((players) => players.map((player) => player.id === selection.playerId ? setScore(player, category, value, isCustomScore) : player))
       setSelection(null)
       return null
     } catch (error) {
@@ -87,7 +87,7 @@ export default function App() {
       <ScoreSheet players={game.players} onSelect={select} onRename={renamePlayer} onDelete={deletePlayer} />
       <footer className="app-footer"><span>Les scores sont enregistrés automatiquement sur cet appareil.</span><span className="footer-dot">•</span><span>Appuyez sur une case pour jouer</span></footer>
       {toast && <div className="app-toast" role="status">{toast}</div>}
-      {selection && selectedPlayer && <ScoreModal player={selectedPlayer} category={selection.category.id} label={selection.category.label} onClose={() => setSelection(null)} onSave={(value) => saveScore(selection.category.id, value)} onClear={clearSelectedScore} />}
+      {selection && selectedPlayer && <ScoreModal player={selectedPlayer} category={selection.category.id} label={selection.category.label} onClose={() => setSelection(null)} onSave={(value, isCustomScore) => saveScore(selection.category.id, value, isCustomScore)} onClear={clearSelectedScore} />}
       {dialog === 'newGame' && <NewGameDialog isSubmitting={isStartingNewGame} onCancel={() => setDialog(null)} onConfirm={confirmNewGame} />}
       {(dialog === 'history' || dialog === 'stats') && <ArchiveDialog mode={dialog} archives={archives} onClose={() => setDialog(null)} />}
       {(dialog === 'settings' || dialog === 'appearance') && <SettingsSheet appearance={appearance} initialView={dialog === 'appearance' ? 'appearance' : 'home'} onAppearanceChange={setAppearance} onResetAppearance={resetAppearance} onOpenHistory={openHistoryFromSettings} onClearHistory={eraseHistory} onClose={() => setDialog(null)} />}
