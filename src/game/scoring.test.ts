@@ -73,7 +73,7 @@ describe('valeurs autorisées', () => {
     expect(validScores('ones', {})).toEqual([1, 2, 3, 4, 5])
     expect(validScores('fours', {})).toEqual([4, 8, 12, 16, 20])
     expect(validScores('pair', {})).toEqual([2, 4, 6, 8, 10, 12])
-    expect(validScores('twoPairs', {})).toEqual([6, 8, 10, 12, 14, 16, 18, 20, 22])
+    expect(validScores('twoPairs', {})).toEqual([4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24])
     expect(validScores('yams', {})).toEqual([50])
   })
 
@@ -123,7 +123,9 @@ describe('saisie, rature et remise à vide', () => {
 
   it('accepte un score personnalisé valide et refuse un score invalide', () => {
     expect(setScore(player, 'pair', 12).scores.pair).toBe(12)
+    expect(setScore(player, 'twoPairs', 24).scores.twoPairs).toBe(24)
     expect(() => setScore(player, 'pair', 3)).toThrow('Score invalide pour cette catégorie.')
+    expect(() => setScore(player, 'twoPairs', 23)).toThrow('Score invalide pour cette catégorie.')
   })
 
   it('calcule le total complet avec le Yams Bonus', () => {

@@ -11,7 +11,7 @@ export const upperCategories: readonly CategoryDefinition[] = [
 
 export const mainCategories: readonly CategoryDefinition[] = [
   { id: 'pair', label: 'Paire', section: 'main', description: 'Valeur des deux dés de la paire.', scoreSummary: '2, 4, 6, 8, 10 ou 12.' },
-  { id: 'twoPairs', label: 'Double paire', section: 'main', description: 'Deux paires de valeurs différentes.', scoreSummary: '6, 8, 10, 12, 14, 16, 18, 20 ou 22.' },
+  { id: 'twoPairs', label: 'Double paire', section: 'main', description: 'Deux paires, y compris de même valeur.', scoreSummary: '4 à 24, de 2 en 2.' },
   { id: 'threeKind', label: 'Brelan', section: 'main', description: 'Trois dés de même valeur.', scoreSummary: '20 points.' },
   { id: 'fourKind', label: 'Carré', section: 'main', description: 'Quatre dés de même valeur.', scoreSummary: '30 points.' },
   { id: 'fullHouse', label: 'Full', section: 'main', description: 'Un brelan et une paire.', scoreSummary: '25 points.' },
@@ -43,7 +43,7 @@ export function validScores(category: CategoryId, scores: Scores): number[] {
   }
   if (category in fixedValues) return [...fixedValues[category as keyof typeof fixedValues]]
   if (category === 'pair') return [2, 4, 6, 8, 10, 12]
-  if (category === 'twoPairs') return [6, 8, 10, 12, 14, 16, 18, 20, 22]
+  if (category === 'twoPairs') return range(4, 24).filter((value) => value % 2 === 0)
   if (category === 'chancePlus') {
     const minimum = isPositiveScore(scores.chanceMinus) ? scores.chanceMinus + 1 : 5
     return range(minimum, 30)

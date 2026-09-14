@@ -56,7 +56,7 @@ Additionner As à Six. À partir de `63`, le bonus vaut `+35`, sinon `0`. La cib
 ### Chances et combinaisons
 
 - Paire : valeur de la paire (`2, 4, 6, 8, 10, 12`).
-- Double paire : deux paires différentes, somme des quatre dés (`6, 8, 10, 12, 14, 16, 18, 20, 22`).
+- Double paire : deux paires, de valeurs identiques ou différentes, somme des quatre dés (`4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24`). Ainsi, quatre dés identiques comptent aussi comme une double paire.
 - Brelan : `20` ; Carré : `30` ; Full : `25` ; Petite suite : `30` ; Grande suite : `40` ; Yams : `50`.
 - Yams Bonus : après un Yams inscrit à 50, chaque Yams supplémentaire ajoute 100 points au cumul (`100, 200, …`).
 - Chance + et Chance - : somme des cinq dés, de `5` à `30`. Si les deux sont positives, Chance + doit être strictement supérieure à Chance -. Une Chance raturée (`0`) ne contraint pas l’autre.
