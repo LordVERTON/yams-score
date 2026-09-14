@@ -12,6 +12,7 @@ import type { CategoryDefinition, CategoryId, GameState, Player } from '../game/
 import { applyAppearance } from '../theme/applyTheme'
 import { DEFAULT_BACKGROUND_THEME, DEFAULT_GRID_THEME } from '../theme/themes'
 import type { AppearancePreferences } from '../theme/types'
+import { TranslationProvider, translate } from '../i18n'
 import { clearArchives, loadArchives, loadGame, loadPreferences, saveArchives, saveGame, saveNewGameSession, savePreferences } from './storage'
 
 interface Selection { playerId: string; category: CategoryDefinition }
@@ -29,7 +30,7 @@ export default function App() {
 
   useEffect(() => { saveGame(game) }, [game])
   useEffect(() => { saveArchives(archives) }, [archives])
-  useEffect(() => { applyAppearance(appearance); savePreferences(appearance) }, [appearance])
+  useEffect(() => { applyAppearance(appearance); document.documentElement.lang = appearance.language; savePreferences(appearance) }, [appearance])
   useEffect(() => {
     if (!toast) return undefined
     const timer = window.setTimeout(() => setToast(null), 1800)
@@ -37,11 +38,11 @@ export default function App() {
   }, [toast])
 
   const updatePlayers = (recipe: (players: Player[]) => Player[]) => setGame((current) => ({ ...current, players: recipe(current.players) }))
-  const addPlayer = () => updatePlayers((players) => [...players, createPlayer(`Joueur ${players.length + 1}`)])
+  const addPlayer = () => updatePlayers((players) => [...players, createPlayer(`${translate(appearance.language, 'player')} ${players.length + 1}`)])
   const renamePlayer = (id: string, name: string) => updatePlayers((players) => players.map((player) => player.id === id ? { ...player, name: name.slice(0, 32) } : player))
   const deletePlayer = (id: string) => updatePlayers((players) => players.length > 1 ? players.filter((player) => player.id !== id) : players)
   const select = (player: Player, category: CategoryDefinition) => setSelection({ playerId: player.id, category })
-  const resetAppearance = () => setAppearance({ version: 1, backgroundTheme: DEFAULT_BACKGROUND_THEME, gridTheme: DEFAULT_GRID_THEME })
+  const resetAppearance = () => setAppearance((current) => ({ version: 1, backgroundTheme: DEFAULT_BACKGROUND_THEME, gridTheme: DEFAULT_GRID_THEME, language: current.language }))
 
   const confirmNewGame = () => {
     if (newGameGuard.current) return
@@ -54,7 +55,7 @@ export default function App() {
       setGame(result.game)
       setSelection(null)
       setDialog(null)
-      setToast(result.archived ? 'Partie précédente archivée' : 'Nouvelle partie créée')
+      setToast(result.archived ? translate(appearance.language, 'archived') : translate(appearance.language, 'created'))
     } finally {
       newGameGuard.current = false
       setIsStartingNewGame(false)
@@ -68,7 +69,11 @@ export default function App() {
       setSelection(null)
       return null
     } catch (error) {
-      return error instanceof Error ? error.message : 'Score invalide pour cette catégorie.'
+      if (!(error instanceof Error)) return translate(appearance.language, 'invalidScore')
+      if (error.message === 'Chance + doit être strictement supérieure à Chance -.') return translate(appearance.language, 'chancePlus')
+      if (error.message === 'Chance - doit être strictement inférieure à Chance +.') return translate(appearance.language, 'chanceMinus')
+      if (error.message === 'Score invalide pour cette catégorie.') return translate(appearance.language, 'invalidScore')
+      return error.message
     }
   }
   const clearSelectedScore = () => {
@@ -78,19 +83,19 @@ export default function App() {
   }
   const selectedPlayer = selection ? game.players.find((player) => player.id === selection.playerId) : undefined
   const openHistoryFromSettings = () => setDialog('history')
-  const eraseHistory = () => { clearArchives(); setArchives([]); setDialog(null); setToast('Historique effacé') }
+  const eraseHistory = () => { clearArchives(); setArchives([]); setDialog(null); setToast(translate(appearance.language, 'erased')) }
 
   return (
-    <main className="app-shell">
+    <TranslationProvider language={appearance.language}><main className="app-shell">
       <AppHeader onSettings={() => setDialog('settings')} onPalette={() => setDialog('appearance')} onHistory={() => setDialog('history')} onStats={() => setDialog('stats')} onNewGame={() => setDialog('newGame')} />
       <PlayersBar onAdd={addPlayer} />
       <ScoreSheet players={game.players} onSelect={select} onRename={renamePlayer} onDelete={deletePlayer} />
-      <footer className="app-footer"><span>Les scores sont enregistrés automatiquement sur cet appareil.</span><span className="footer-dot">•</span><span>Appuyez sur une case pour jouer</span></footer>
+      <footer className="app-footer"><span>{translate(appearance.language, 'automaticSave')}</span><span className="footer-dot">•</span><span>{translate(appearance.language, 'tapCell')}</span></footer>
       {toast && <div className="app-toast" role="status">{toast}</div>}
-      {selection && selectedPlayer && <ScoreModal player={selectedPlayer} category={selection.category.id} label={selection.category.label} onClose={() => setSelection(null)} onSave={(value, isCustomScore) => saveScore(selection.category.id, value, isCustomScore)} onClear={clearSelectedScore} />}
+      {selection && selectedPlayer && <ScoreModal player={selectedPlayer} category={selection.category.id} onClose={() => setSelection(null)} onSave={(value, isCustomScore) => saveScore(selection.category.id, value, isCustomScore)} onClear={clearSelectedScore} />}
       {dialog === 'newGame' && <NewGameDialog isSubmitting={isStartingNewGame} onCancel={() => setDialog(null)} onConfirm={confirmNewGame} />}
       {(dialog === 'history' || dialog === 'stats') && <ArchiveDialog mode={dialog} archives={archives} onClose={() => setDialog(null)} />}
       {(dialog === 'settings' || dialog === 'appearance') && <SettingsSheet appearance={appearance} initialView={dialog === 'appearance' ? 'appearance' : 'home'} onAppearanceChange={setAppearance} onResetAppearance={resetAppearance} onOpenHistory={openHistoryFromSettings} onClearHistory={eraseHistory} onClose={() => setDialog(null)} />}
-    </main>
+    </main></TranslationProvider>
   )
 }

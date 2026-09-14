@@ -1,4 +1,5 @@
 import { History, Palette, RotateCcw, Settings, Trophy } from 'lucide-react'
+import { useTranslation } from '../i18n'
 
 interface AppHeaderProps {
   onPalette: () => void
@@ -9,18 +10,19 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ onPalette, onSettings, onHistory, onStats, onNewGame }: AppHeaderProps) {
+  const { t } = useTranslation()
   return (
     <header className="app-header">
       <div className="header-action-group">
-        <button className="header-icon-button" type="button" onClick={onSettings} aria-label="Ouvrir les paramètres" title="Paramètres"><Settings size={20} /></button>
-        <button className="header-icon-button palette-button" type="button" onClick={onPalette} aria-label="Changer l'apparence" title="Apparence"><Palette size={20} /></button>
+        <button className="header-icon-button" type="button" onClick={onSettings} aria-label={t('openSettings')} title={t('settings')}><Settings size={20} /></button>
+        <button className="header-icon-button palette-button" type="button" onClick={onPalette} aria-label={t('changeAppearance')} title={t('appearance')}><Palette size={20} /></button>
       </div>
       <div className="header-right-actions">
         <div className="header-action-group">
-          <button className="header-icon-button" type="button" onClick={onHistory} aria-label="Voir l'historique des parties" title="Historique"><History size={20} /></button>
-          <button className="header-icon-button" type="button" onClick={onStats} aria-label="Voir les statistiques des joueurs" title="Statistiques"><Trophy size={19} /></button>
+          <button className="header-icon-button" type="button" onClick={onHistory} aria-label={t('viewHistory')} title={t('history')}><History size={20} /></button>
+          <button className="header-icon-button" type="button" onClick={onStats} aria-label={t('viewStats')} title={t('statistics')}><Trophy size={19} /></button>
         </div>
-        <button className="header-icon-button new-game-button" type="button" onClick={onNewGame} aria-label="Commencer une nouvelle partie" title="Nouvelle partie"><RotateCcw size={23} /></button>
+        <button className="header-icon-button new-game-button" type="button" onClick={onNewGame} aria-label={t('startGame')} title={t('newGame')}><RotateCcw size={23} /></button>
       </div>
     </header>
   )

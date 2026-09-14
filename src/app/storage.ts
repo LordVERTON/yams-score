@@ -2,6 +2,7 @@ import { createGame, createId, createPlayer } from '../game/scoring'
 import type { GameArchive, GameState, Player, Scores } from '../game/types'
 import { DEFAULT_BACKGROUND_THEME, DEFAULT_GRID_THEME, isBackgroundTheme, isGridTheme } from '../theme/themes'
 import type { AppearancePreferences } from '../theme/types'
+import type { Language } from '../i18n'
 
 export const STORAGE_KEY = 'yams-score/game-v1'
 export const ARCHIVES_STORAGE_KEY = 'yams-score/archives-v1'
@@ -63,7 +64,11 @@ export function saveArchives(archives: GameArchive[]): void {
 }
 
 function defaultPreferences(): AppearancePreferences {
-  return { version: 1, backgroundTheme: DEFAULT_BACKGROUND_THEME, gridTheme: DEFAULT_GRID_THEME }
+  return { version: 1, backgroundTheme: DEFAULT_BACKGROUND_THEME, gridTheme: DEFAULT_GRID_THEME, language: 'fr' }
+}
+
+function isLanguage(value: unknown): value is Language {
+  return value === 'fr' || value === 'en' || value === 'es' || value === 'de' || value === 'it'
 }
 
 export function normalizePreferences(value: unknown, legacyTheme?: unknown): AppearancePreferences {
@@ -72,7 +77,8 @@ export function normalizePreferences(value: unknown, legacyTheme?: unknown): App
     return {
       version: 1,
       backgroundTheme: isBackgroundTheme(values.backgroundTheme) ? values.backgroundTheme : DEFAULT_BACKGROUND_THEME,
-      gridTheme: isGridTheme(values.gridTheme) ? values.gridTheme : DEFAULT_GRID_THEME
+      gridTheme: isGridTheme(values.gridTheme) ? values.gridTheme : DEFAULT_GRID_THEME,
+      language: isLanguage(values.language) ? values.language : 'fr'
     }
   }
   const gridTheme = legacyTheme === 'ocean' ? 'ocean' : legacyTheme === 'plum' ? 'violet' : DEFAULT_GRID_THEME

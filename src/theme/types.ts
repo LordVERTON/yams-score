@@ -5,4 +5,6 @@ export interface AppearancePreferences {
   version: 1
   backgroundTheme: BackgroundThemeId
   gridTheme: GridThemeId
+  language: Language
 }
+import type { Language } from '../i18n'

@@ -2,24 +2,25 @@ import { FormEvent, useEffect, useId, useState } from 'react'
 import { CircleX, PencilLine, Square, X } from 'lucide-react'
 import { categoryById, validScores } from '../game/rules'
 import type { CategoryId, Player } from '../game/types'
+import { categoryText, useTranslation } from '../i18n'
 
 interface ScoreModalProps {
   player: Player
   category: CategoryId
-  label: string
   onClose: () => void
   onSave: (value: number, isCustomScore?: boolean) => string | null
   onClear: () => void
 }
 
-export function ScoreModal({ player, category, label, onClose, onSave, onClear }: ScoreModalProps) {
+export function ScoreModal({ player, category, onClose, onSave, onClear }: ScoreModalProps) {
+  const { language, t } = useTranslation()
   const [customMode, setCustomMode] = useState(false)
   const [customValue, setCustomValue] = useState('')
   const [error, setError] = useState<string | null>(null)
   const titleId = useId()
   const options = validScores(category, player.scores)
   const allowsRangedCustomScore = categoryById[category].section !== 'upper'
-  const customScoreHint = allowsRangedCustomScore ? 'Entrez un nombre entier de 5 à 30.' : 'Entrez un score entier valide pour cette catégorie.'
+  const customScoreHint = allowsRangedCustomScore ? t('customRangeHint') : t('customDefaultHint')
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -38,15 +39,15 @@ export function ScoreModal({ player, category, label, onClose, onSave, onClear }
     event.preventDefault()
     const value = Number(customValue)
     if (!customValue.trim() || !Number.isInteger(value)) {
-      setError('Saisissez un score entier.')
+      setError(t('enterInteger'))
       return
     }
     if (value === 0) {
-      setError('Utilisez 0 / Raturer pour inscrire zéro.')
+      setError(t('useScratch'))
       return
     }
     if (allowsRangedCustomScore && (value < 5 || value > 30)) {
-      setError('Le score personnalisé doit être compris entre 5 et 30.')
+      setError(t('customRange'))
       return
     }
     save(value, allowsRangedCustomScore)
@@ -58,29 +59,29 @@ export function ScoreModal({ player, category, label, onClose, onSave, onClear }
         <header className="modal-header">
           <div className="modal-title">
             <p className="eyebrow">{player.name}</p>
-            <h2 id={titleId}>{label}</h2>
+            <h2 id={titleId}>{categoryText(language, category).label}</h2>
           </div>
-          <button className="icon-button" type="button" aria-label="Fermer" onClick={onClose}><X size={22} /></button>
+          <button className="icon-button" type="button" aria-label={t('close')} onClick={onClose}><X size={22} /></button>
         </header>
-        <div className="modal-quick-actions" aria-label="Actions sur la case">
-          <button type="button" className="modal-action scratch-action" onClick={() => save(0)}><CircleX size={19} /><span>0 / Raturer</span></button>
-          <button type="button" className="modal-action" onClick={() => { setCustomMode(true); setError(null) }}><PencilLine size={19} /><span>Personnalisé</span></button>
-          <button type="button" className="modal-action" onClick={onClear}><Square size={19} /><span>Case vide</span></button>
+        <div className="modal-quick-actions" aria-label={t('cellActions')}>
+          <button type="button" className="modal-action scratch-action" onClick={() => save(0)}><CircleX size={19} /><span>{t('scratch')}</span></button>
+          <button type="button" className="modal-action" onClick={() => { setCustomMode(true); setError(null) }}><PencilLine size={19} /><span>{t('custom')}</span></button>
+          <button type="button" className="modal-action" onClick={onClear}><Square size={19} /><span>{t('emptyCell')}</span></button>
         </div>
         {customMode && <form className="custom-score-form" onSubmit={submitCustom}>
-          <label htmlFor="custom-score">Score personnalisé</label>
-          <div><input id="custom-score" autoFocus value={customValue} onChange={(event) => { setCustomValue(event.target.value); setError(null) }} type="number" inputMode="numeric" pattern="[0-9]*" min={allowsRangedCustomScore ? 5 : 1} max={allowsRangedCustomScore ? 30 : undefined} step="1" aria-describedby="custom-score-hint" aria-invalid={Boolean(error)} /><button type="submit" className="confirm-button">Valider</button></div>
+          <label htmlFor="custom-score">{t('customScore')}</label>
+          <div><input id="custom-score" autoFocus value={customValue} onChange={(event) => { setCustomValue(event.target.value); setError(null) }} type="number" inputMode="numeric" pattern="[0-9]*" min={allowsRangedCustomScore ? 5 : 1} max={allowsRangedCustomScore ? 30 : undefined} step="1" aria-describedby="custom-score-hint" aria-invalid={Boolean(error)} /><button type="submit" className="confirm-button">{t('confirm')}</button></div>
           <small id="custom-score-hint">{customScoreHint}</small>
         </form>}
         {error && <p className="modal-error" role="alert">{error}</p>}
-        <p className="modal-help">Scores proposés</p>
+        <p className="modal-help">{t('proposedScores')}</p>
         {options.length ? (
-          <div className="score-options" aria-label="Scores possibles">
+          <div className="score-options" aria-label={t('possibleScores')}>
             {options.map((value) => (
               <button key={value} type="button" className="score-option" onClick={() => save(value)}>{value}</button>
             ))}
           </div>
-        ) : <p className="no-option">Aucune valeur compatible pour le moment.</p>}
+        ) : <p className="no-option">{t('noCompatibleScore')}</p>}
       </section>
     </div>
   )

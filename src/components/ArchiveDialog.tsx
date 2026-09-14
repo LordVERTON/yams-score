@@ -1,6 +1,7 @@
 import { getPlayerStats } from '../game/history'
 import type { GameArchive } from '../game/types'
 import { BottomSheet } from './BottomSheet'
+import { useTranslation } from '../i18n'
 
 interface ArchiveDialogProps {
   mode: 'history' | 'stats'
@@ -9,21 +10,24 @@ interface ArchiveDialogProps {
 }
 
 export function ArchiveDialog({ mode, archives, onClose }: ArchiveDialogProps) {
+  const { language, t } = useTranslation()
   const isHistory = mode === 'history'
   const stats = getPlayerStats(archives)
   return (
-    <BottomSheet title={isHistory ? 'Historique' : 'Statistiques'} eyebrow={isHistory ? 'Parties terminées' : 'Résultats cumulés'} onClose={onClose} className="archive-dialog">
-        {isHistory ? <HistoryList archives={archives} /> : <StatsList stats={stats} />}
+    <BottomSheet title={isHistory ? t('history') : t('statistics')} eyebrow={isHistory ? t('historyEyebrow') : t('statsEyebrow')} onClose={onClose} className="archive-dialog">
+        {isHistory ? <HistoryList archives={archives} locale={language} /> : <StatsList stats={stats} />}
     </BottomSheet>
   )
 }
 
-function HistoryList({ archives }: { archives: GameArchive[] }) {
-  if (!archives.length) return <p className="dialog-empty">Aucune partie archivée.</p>
-  return <div className="archive-list">{archives.map((archive) => <article className="archive-card" key={archive.id}><time dateTime={archive.archivedAt}>{new Intl.DateTimeFormat('fr-CH', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(archive.archivedAt))}</time>{archive.players.map((player) => <div className="archive-player" key={player.id}><span>{player.rank}. {player.name}{archive.winnerIds.includes(player.id) ? ' · Gagnant' : ''}</span><strong>{player.total}</strong></div>)}</article>)}</div>
+function HistoryList({ archives, locale }: { archives: GameArchive[]; locale: string }) {
+  const { t } = useTranslation()
+  if (!archives.length) return <p className="dialog-empty">{t('noArchive')}</p>
+  return <div className="archive-list">{archives.map((archive) => <article className="archive-card" key={archive.id}><time dateTime={archive.archivedAt}>{new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(archive.archivedAt))}</time>{archive.players.map((player) => <div className="archive-player" key={player.id}><span>{player.rank}. {player.name}{archive.winnerIds.includes(player.id) ? ` · ${t('winner')}` : ''}</span><strong>{player.total}</strong></div>)}</article>)}</div>
 }
 
 function StatsList({ stats }: { stats: ReturnType<typeof getPlayerStats> }) {
-  if (!stats.length) return <p className="dialog-empty">Les statistiques apparaîtront après la première partie archivée.</p>
-  return <div className="archive-list">{stats.map((player) => <article className="archive-card stats-card" key={player.id}><h3>{player.name}</h3><div><span>Parties</span><strong>{player.gamesPlayed}</strong></div><div><span>Victoires</span><strong>{player.wins}</strong></div><div><span>Moyenne</span><strong>{player.averageScore}</strong></div><div><span>Meilleur score</span><strong>{player.bestScore}</strong></div></article>)}</div>
+  const { t } = useTranslation()
+  if (!stats.length) return <p className="dialog-empty">{t('statsEmpty')}</p>
+  return <div className="archive-list">{stats.map((player) => <article className="archive-card stats-card" key={player.id}><h3>{player.name}</h3><div><span>{t('games')}</span><strong>{player.gamesPlayed}</strong></div><div><span>{t('wins')}</span><strong>{player.wins}</strong></div><div><span>{t('average')}</span><strong>{player.averageScore}</strong></div><div><span>{t('bestScore')}</span><strong>{player.bestScore}</strong></div></article>)}</div>
 }

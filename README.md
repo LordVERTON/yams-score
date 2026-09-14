@@ -10,6 +10,7 @@ Yam's Score est une feuille de score Yam's mobile-first, en français et install
 - Saisie rapide avec scores proposés, score personnalisé, rature et remise à vide.
 - Indicateur de progression du bonus, totaux automatiques et validation des Chances.
 - Thème de fond et couleur de grille indépendants.
+- Interface traduisible en français, anglais, espagnol, allemand et italien.
 - Historique local, classement et statistiques par joueur.
 - Nouvelle partie avec archivage sûr, PWA et déploiement GitHub Pages.
 
@@ -74,6 +75,8 @@ La migration d’apparence lit l’ancienne clé `yams-score/theme-v1` si néces
 ## Apparence et thèmes
 
 Les préférences sont indépendantes : un fond sombre (Nuit, Forêt, Ardoise, Marine, Aubergine ou Sépia) ou clair (Ivoire, Brume ou Sable), et une couleur de grille (Forêt, Émeraude, Ardoise, Violet, Rose, Océan, Braise, Or ou Corail). Les variables CSS séparent surfaces et accents ; les couleurs sémantiques du bonus restent inchangées. Les chiffres de la ligne Total utilisent automatiquement une couleur contrastée : claire sur fond sombre, foncée sur fond clair.
+
+Dans **Paramètres > Langue**, l’interface peut être affichée en français, anglais, espagnol, allemand ou italien. Le choix est enregistré localement avec les préférences d’apparence et s’applique immédiatement.
 
 La palette du header ouvre le sélecteur rapide ; Paramètres > Apparence ouvre le même composant. Réinitialiser l’apparence ne touche ni la partie, ni les joueurs, ni l’historique.
 
