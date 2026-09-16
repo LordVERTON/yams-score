@@ -6,8 +6,9 @@ import { PlayersBar } from '../components/PlayersBar'
 import { ScoreModal } from '../components/ScoreModal'
 import { ScoreSheet } from '../components/ScoreSheet'
 import { SettingsSheet } from '../components/SettingsSheet'
+import { VictoryDialog } from '../components/VictoryDialog'
 import { startNewGame } from '../game/history'
-import { clearScore, createPlayer, setScore } from '../game/scoring'
+import { clearScore, createPlayer, isGameComplete, setScore, total } from '../game/scoring'
 import type { CategoryDefinition, CategoryId, GameState, Player } from '../game/types'
 import { applyAppearance } from '../theme/applyTheme'
 import { DEFAULT_BACKGROUND_THEME, DEFAULT_GRID_THEME } from '../theme/themes'
@@ -17,6 +18,7 @@ import { clearArchives, loadArchives, loadGame, loadPreferences, saveArchives, s
 
 interface Selection { playerId: string; category: CategoryDefinition }
 type Dialog = 'newGame' | 'history' | 'stats' | 'settings' | 'appearance' | null
+interface Victory { player: Player; score: number }
 
 export default function App() {
   const [game, setGame] = useState<GameState>(loadGame)
@@ -26,6 +28,7 @@ export default function App() {
   const [dialog, setDialog] = useState<Dialog>(null)
   const [isStartingNewGame, setIsStartingNewGame] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [victory, setVictory] = useState<Victory | null>(null)
   const newGameGuard = useRef(false)
 
   useEffect(() => { saveGame(game) }, [game])
@@ -65,7 +68,12 @@ export default function App() {
   const saveScore = (category: CategoryId, value: number, isCustomScore = false): string | null => {
     if (!selection) return null
     try {
-      updatePlayers((players) => players.map((player) => player.id === selection.playerId ? setScore(player, category, value, isCustomScore) : player))
+      const nextPlayers = game.players.map((player) => player.id === selection.playerId ? setScore(player, category, value, isCustomScore) : player)
+      setGame((current) => ({ ...current, players: nextPlayers }))
+      if (isGameComplete(nextPlayers)) {
+        const winner = nextPlayers.reduce((best, player) => total(player.scores) > total(best.scores) ? player : best)
+        setVictory({ player: winner, score: total(winner.scores) })
+      }
       setSelection(null)
       return null
     } catch (error) {
@@ -93,6 +101,7 @@ export default function App() {
       <footer className="app-footer"><span>{translate(appearance.language, 'automaticSave')}</span><span className="footer-dot">•</span><span>{translate(appearance.language, 'tapCell')}</span></footer>
       {toast && <div className="app-toast" role="status">{toast}</div>}
       {selection && selectedPlayer && <ScoreModal player={selectedPlayer} category={selection.category.id} onClose={() => setSelection(null)} onSave={(value, isCustomScore) => saveScore(selection.category.id, value, isCustomScore)} onClear={clearSelectedScore} />}
+      {victory && <VictoryDialog winner={victory.player} score={victory.score} onClose={() => setVictory(null)} />}
       {dialog === 'newGame' && <NewGameDialog isSubmitting={isStartingNewGame} onCancel={() => setDialog(null)} onConfirm={confirmNewGame} />}
       {(dialog === 'history' || dialog === 'stats') && <ArchiveDialog mode={dialog} archives={archives} onClose={() => setDialog(null)} />}
       {(dialog === 'settings' || dialog === 'appearance') && <SettingsSheet appearance={appearance} initialView={dialog === 'appearance' ? 'appearance' : 'home'} onAppearanceChange={setAppearance} onResetAppearance={resetAppearance} onOpenHistory={openHistoryFromSettings} onClearHistory={eraseHistory} onClose={() => setDialog(null)} />}

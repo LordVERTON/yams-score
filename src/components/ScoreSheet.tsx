@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react'
+import { Crown, Pencil, Trash2 } from 'lucide-react'
 import { BonusIndicator } from './BonusIndicator'
 import { chanceCategories, mainCategories, upperCategories } from '../game/rules'
 import { chanceTotal, total, upperTotal } from '../game/scoring'
@@ -14,12 +14,16 @@ interface ScoreSheetProps {
 
 export function ScoreSheet({ players, onSelect, onRename, onDelete }: ScoreSheetProps) {
   const { t } = useTranslation()
+  const totals = players.map((player) => ({ id: player.id, value: total(player.scores) }))
+  const highestTotal = Math.max(...totals.map(({ value }) => value))
+  const leaders = totals.filter(({ value }) => value === highestTotal)
+  const leaderId = leaders.length === 1 ? leaders[0].id : undefined
   return (
     <div className="sheet-scroll" aria-label={t('scoreSheet')}>
       <table className="score-sheet">
         <thead>
           <tr>
-            <th scope="col" className="category-head">{t('categories')}</th>
+            <th scope="col" className="category-head" aria-label={t('categories')} />
             {players.map((player) => <PlayerHeader key={player.id} player={player} allowDelete={players.length > 1} onRename={onRename} onDelete={onDelete} />)}
           </tr>
         </thead>
@@ -34,7 +38,7 @@ export function ScoreSheet({ players, onSelect, onRename, onDelete }: ScoreSheet
           <SectionLabel label={t('mainSection')} count={players.length} />
           {mainCategories.map((category) => <ScoreRow key={category.id} category={category} players={players} onSelect={onSelect} />)}
           <SectionLabel label={t('total').toUpperCase()} count={players.length} />
-          <ComputedRow label={t('total')} count={players.length} players={players} getScore={(player) => total(player.scores)} strong final />
+          <ComputedRow label={t('total')} count={players.length} players={players} getScore={(player) => total(player.scores)} leaderId={leaderId} strong final />
         </tbody>
       </table>
     </div>
@@ -73,6 +77,10 @@ function BonusRow({ players }: { players: Player[] }) {
   return <tr className="computed-row bonus-row"><th scope="row">{t('bonus')}<small>{t('bonusHint')}</small></th>{players.map((player) => <td key={player.id}><BonusIndicator scores={player.scores} /></td>)}</tr>
 }
 
-function ComputedRow({ label, count, players, getScore, hint, strong, final }: { label: string; count: number; players: Player[]; getScore: (player: Player) => number; hint?: string; strong?: boolean; final?: boolean }) {
-  return <tr className={`${strong ? 'computed-row strong-row' : 'computed-row'} ${final ? 'final-row' : ''}`}><th scope="row">{label}{hint && <small>{hint}</small>}</th>{players.slice(0, count).map((player) => <td key={player.id}>{getScore(player)}</td>)}</tr>
+function ComputedRow({ label, count, players, getScore, hint, strong, final, leaderId }: { label: string; count: number; players: Player[]; getScore: (player: Player) => number; hint?: string; strong?: boolean; final?: boolean; leaderId?: string }) {
+  return <tr className={`${strong ? 'computed-row strong-row' : 'computed-row'} ${final ? 'final-row' : ''}`}><th scope="row">{label}{hint && <small>{hint}</small>}</th>{players.slice(0, count).map((player) => {
+    const score = getScore(player)
+    const isLeader = final && player.id === leaderId
+    return <td key={player.id} className={isLeader ? 'leading-total' : undefined}>{isLeader ? <span className="total-score"><Crown className="leader-crown" size={18} aria-hidden="true" /><span>{score}</span></span> : score}</td>
+  })}</tr>
 }
