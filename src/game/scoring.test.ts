@@ -7,7 +7,9 @@ import {
   getBonusIndicatorStatus,
   getBonusPaceDelta,
   getUpperSectionRemaining,
+  isGameComplete,
   isCustomScoreInRange,
+  isPlayerGameComplete,
   isValidScore,
   setScore,
   total,
@@ -141,5 +143,28 @@ describe('saisie, rature et remise à vide', () => {
 
   it('calcule le total complet avec le Yams Bonus', () => {
     expect(total({ ones: 1, pair: 12, yams: 50, yamsBonus: 200, chancePlus: 25, chanceMinus: 10 })).toBe(298)
+  })
+})
+
+describe('fin de partie', () => {
+  const completeScores: Scores = {
+    ones: 0, twos: 0, threes: 0, fours: 0, fives: 0, sixes: 0,
+    chancePlus: 0, chanceMinus: 0,
+    pair: 0, twoPairs: 0, threeKind: 0, fourKind: 0, fullHouse: 0,
+    smallStraight: 0, largeStraight: 0, yams: 0
+  }
+
+  it('considère la partie complète lorsque chaque joueur a rempli ses cases jouables', () => {
+    const players: Player[] = [
+      { id: 'one', name: 'Un', scores: completeScores },
+      { id: 'two', name: 'Deux', scores: { ...completeScores, pair: 12 } }
+    ]
+    expect(isPlayerGameComplete(players[0])).toBe(true)
+    expect(isGameComplete(players)).toBe(true)
+  })
+
+  it('ne demande jamais le Yams Bonus pour terminer la partie', () => {
+    const player: Player = { id: 'one', name: 'Un', scores: { ...completeScores, yams: 50 } }
+    expect(isPlayerGameComplete(player)).toBe(true)
   })
 })

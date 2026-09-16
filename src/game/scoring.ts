@@ -71,6 +71,20 @@ export function total(scores: Scores): number {
   return upperTotal(scores) + chanceTotal(scores) + mainCategories.reduce((sum, category) => sum + (scores[category.id] ?? 0), 0)
 }
 
+function isFilled(value: number | null | undefined): value is number {
+  return value !== undefined && value !== null
+}
+
+/** The Yams bonus is optional and never blocks the end of a game. */
+export function isPlayerGameComplete(player: Player): boolean {
+  const regularCategories = [...upperCategories, ...chanceCategories, ...mainCategories.filter((category) => category.id !== 'yamsBonus')]
+  return regularCategories.every((category) => isFilled(player.scores[category.id]))
+}
+
+export function isGameComplete(players: Player[]): boolean {
+  return players.length > 0 && players.every(isPlayerGameComplete)
+}
+
 export function isValidScore(category: CategoryId, value: number, scores: Scores): boolean {
   return validScores(category, scores).includes(value)
 }
